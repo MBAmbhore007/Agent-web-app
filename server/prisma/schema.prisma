@@ -1,0 +1,78 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id            String         @id
+  name          String
+  phone         String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  conversations Conversation[]
+
+  @@map("customers")
+}
+
+model Conversation {
+  id             String    @id @default(cuid())
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status         String    @default("OPEN") // "OPEN" | "CLOSED"
+  lastActivityAt DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  messages       Message[]
+
+  @@index([customerId])
+  @@index([lastActivityAt(sort: Desc)])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderType     String       // "CUSTOMER" | "AGENT"
+  text           String
+  rawPayload     Json?
+  createdAt      DateTime     @default(now())
+  aiDraft        AIDraft?
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model AIDraft {
+  id             String       @id @default(cuid())
+  messageId      String       @unique
+  message        Message      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  conversationId String
+  draftText      String
+  status         String       @default("PENDING") // "PENDING" | "APPROVED" | "EDITED" | "DISCARDED" | "FAILED"
+  errorMessage   String?
+  modelUsed      String?
+  approvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([conversationId])
+  @@map("ai_drafts")
+}
+
+model Agent {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("AGENT")
+  createdAt    DateTime @default(now())
+
+  @@map("agents")
+}
+

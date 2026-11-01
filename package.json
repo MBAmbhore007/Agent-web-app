@@ -1,0 +1,23 @@
+{
+  "name": "datastraw-verdant-support",
+  "version": "1.0.0",
+  "description": "Verdant & Co AI Support Co-pilot - Customer & Agent Support Platform with AI Drafting",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm run install:server && npm run install:client",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd server && npm run build && cd ../client && npm run build",
+    "start": "cd server && npm start",
+    "db:push": "cd server && npx prisma db push",
+    "db:seed": "cd server && npx ts-node src/db/seed.ts",
+    "webhook:test": "cd server && npx ts-node ../scripts/test-webhook.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+
