@@ -5,6 +5,7 @@ import { AgentView } from './components/AgentView';
 import { AgentLoginModal } from './components/AgentLoginModal';
 import { WebhookTesterModal } from './components/WebhookTesterModal';
 import { KnowledgeBaseModal } from './components/KnowledgeBaseModal';
+import { AnimatedContainer } from './components/ui';
 import { api, getStoredAgent } from './services/api';
 import { AgentUser } from './types';
 
@@ -40,7 +41,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 selection:bg-emerald-500 selection:text-white">
       <Navbar
         currentView={currentView}
         onToggleView={(view) => setCurrentView(view)}
@@ -52,17 +53,19 @@ export const App: React.FC = () => {
       />
 
       <main className="flex-1">
-        {currentView === 'customer' ? (
-          <CustomerView />
-        ) : (
-          <AgentView
-            agent={agent}
-            onOpenLogin={() => setIsLoginOpen(true)}
-          />
-        )}
+        <AnimatedContainer viewKey={currentView}>
+          {currentView === 'customer' ? (
+            <CustomerView />
+          ) : (
+            <AgentView
+              agent={agent}
+              onOpenLogin={() => setIsLoginOpen(true)}
+            />
+          )}
+        </AnimatedContainer>
       </main>
 
-      {/* Modals */}
+      {/* Accessible Watermelon UI Modals */}
       <AgentLoginModal
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
@@ -83,4 +86,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

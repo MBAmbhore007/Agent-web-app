@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   Sparkles,
   CheckCircle2,
@@ -10,6 +11,7 @@ import {
   Clock,
   Shield,
   Check,
+  ChevronLeft,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { AgentUser, ConversationDetail, ConversationSummary } from '../types';
@@ -47,6 +49,9 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
   const [regenerating, setRegenerating] = useState(false);
   const [sendingManual, setSendingManual] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Mobile responsive state: allows toggling between list and detail on small screens
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   // 1. Fetch conversation list
   const fetchConversations = async (silent = false) => {
@@ -179,13 +184,13 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
   if (!agent) {
     return (
       <div className="max-w-md mx-auto my-16 px-4">
-        <Card className="text-center p-8 border-slate-200 shadow-md">
+        <Card className="text-center p-8 border-slate-200/90 shadow-md">
           <div className="w-14 h-14 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-2xs">
             <Shield className="w-7 h-7" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Agent Sign-In Required</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2 tracking-tight">Agent Sign-In Required</h2>
           <p className="text-xs text-slate-600 mb-6 leading-relaxed">
-            The Agent dashboard is restricted to authorized Verdant & Co support agents to review conversations and approve AI drafts.
+            The Agent workspace is restricted to authorized Verdant & Co agents to review conversations, inspect customer inquiries, and approve AI draft suggestions.
           </p>
           <Button
             onClick={onOpenLogin}
@@ -193,7 +198,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
             size="lg"
             className="w-full text-sm font-semibold"
           >
-            Sign In as Agent
+            Sign In to Agent Portal
           </Button>
           <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-[11px] text-slate-500 font-mono">
             Default: <span className="font-semibold text-slate-800">agent@verdant.co</span> / <span className="font-semibold text-slate-800">verdant2026</span>
@@ -213,24 +218,28 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
   return (
     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px]">
-        {/* Left Column: Conversation Queue (4 cols) */}
-        <Card className="lg:col-span-5 xl:col-span-4 flex flex-col overflow-hidden border-slate-200 shadow-xs">
-          {/* List Header */}
-          <div className="p-4 border-b border-slate-200/80 bg-slate-50/50">
+        {/* Left Column: Customer Conversations Queue (4 cols) */}
+        <Card
+          className={`lg:col-span-5 xl:col-span-4 flex flex-col overflow-hidden border-slate-200/90 shadow-2xs ${
+            showMobileDetail ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          {/* Queue Header */}
+          <div className="p-4 border-b border-slate-200/80 bg-slate-50/70">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <h2 className="font-bold text-slate-900 text-sm">Inbox Queue</h2>
+                <h2 className="font-bold text-slate-900 text-sm tracking-tight">Inbox Queue</h2>
               </div>
               <div className="flex items-center space-x-2">
-                <Badge variant="success" size="sm">
+                <Badge variant="success" size="sm" className="font-mono font-semibold">
                   {conversations.length} active
                 </Badge>
                 <Button
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => fetchConversations()}
-                  title="Refresh list"
+                  title="Refresh conversation queue"
                   className="text-slate-400 hover:text-slate-700"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${loadingList ? 'animate-spin' : ''}`} />
@@ -248,7 +257,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
             />
           </div>
 
-          {/* Conversation Items List */}
+          {/* Conversation Queue Items */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
             {!initialListLoaded && loadingList ? (
               <div className="p-4 space-y-3">
@@ -273,17 +282,20 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                 return (
                   <div
                     key={conv.id}
-                    onClick={() => setSelectedConvId(conv.id)}
-                    className={`p-3.5 cursor-pointer transition-all duration-150 ${
+                    onClick={() => {
+                      setSelectedConvId(conv.id);
+                      setShowMobileDetail(true);
+                    }}
+                    className={`p-3.5 cursor-pointer transition-all duration-150 select-none ${
                       isSelected
-                        ? 'bg-emerald-50/70 border-l-4 border-emerald-600 shadow-2xs'
-                        : 'hover:bg-slate-50/80'
+                        ? 'bg-emerald-50/80 border-l-4 border-emerald-600 shadow-2xs'
+                        : 'hover:bg-slate-50/90'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1">
                       <div className="flex items-center space-x-2">
                         <Avatar size="sm">
-                          <AvatarFallback className="text-[11px]">
+                          <AvatarFallback className="text-[11px] font-bold bg-slate-200 text-slate-700">
                             {conv.customerName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
@@ -312,12 +324,12 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                           Draft Ready
                         </Badge>
                       ) : isLastFromCustomer ? (
-                        <Badge variant="warning" size="sm">
+                        <Badge variant="warning" size="sm" className="font-medium">
                           <Clock className="w-2.5 h-2.5 mr-1" />
                           Needs Reply
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" size="sm">
+                        <Badge variant="secondary" size="sm" className="font-medium text-slate-500">
                           <Check className="w-2.5 h-2.5 mr-1 text-slate-400" />
                           Replied
                         </Badge>
@@ -330,24 +342,41 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
           </div>
         </Card>
 
-        {/* Right Column: Conversation Thread & AI Review Area (8 cols) */}
-        <Card className="lg:col-span-7 xl:col-span-8 flex flex-col overflow-hidden border-slate-200 shadow-xs">
+        {/* Right Column: Conversation Details & AI Suggested Reply Workspace (8 cols) */}
+        <Card
+          className={`lg:col-span-7 xl:col-span-8 flex flex-col overflow-hidden border-slate-200/90 shadow-2xs ${
+            !showMobileDetail ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
           {activeConversation ? (
             <>
               {/* Conversation Top Header */}
-              <div className="px-5 py-3.5 bg-slate-50/70 border-b border-slate-200/80 flex items-center justify-between">
+              <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Avatar size="md">
-                    <AvatarFallback>{activeConversation.customer.name.charAt(0)}</AvatarFallback>
+                  {/* Mobile Back Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setShowMobileDetail(false)}
+                    className="lg:hidden text-slate-500 mr-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Avatar size="md" className="ring-1 ring-slate-200">
+                    <AvatarFallback className="bg-emerald-600 text-white font-bold text-xs">
+                      {activeConversation.customer.name.charAt(0)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-bold text-slate-900 text-sm">{activeConversation.customer.name}</h3>
-                      <Badge variant="outline" size="sm" className="font-mono text-slate-600">
+                    <div className="flex items-center flex-wrap gap-2">
+                      <h3 className="font-bold text-slate-900 text-sm tracking-tight">
+                        {activeConversation.customer.name}
+                      </h3>
+                      <Badge variant="outline" size="sm" className="font-mono text-slate-600 bg-white">
                         {activeConversation.customer.phone}
                       </Badge>
-                      <Badge variant="success" size="sm" className="font-mono">
-                        {activeConversation.customer.id}
+                      <Badge variant="success" size="sm" className="font-mono text-[10px]">
+                        ID: {activeConversation.customer.id}
                       </Badge>
                     </div>
                     <p className="text-[11px] text-slate-400 mt-0.5 font-medium">
@@ -367,14 +396,14 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
               </div>
 
               {/* Message History & AI Draft Review Area */}
-              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-50/40">
+              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-gradient-to-b from-slate-50/40 to-slate-100/40">
                 {activeConversation.messages.map((msg) => {
                   const isCustomer = msg.senderType === 'CUSTOMER';
                   const draft = msg.aiDraft;
 
                   return (
                     <div key={msg.id} className="space-y-3">
-                      {/* Chat Message Bubble */}
+                      {/* Chat Bubble */}
                       <div className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}>
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-2xs leading-relaxed transition-all ${
@@ -395,12 +424,18 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                         </div>
                       </div>
 
-                      {/* AI Draft Card (Associated with Customer Message) */}
+                      {/* AI Suggested Reply Panel (Critical Component) */}
                       {draft && draft.status === 'PENDING' && (
-                        <div className="mx-2 sm:mx-4 p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border border-emerald-300 shadow-sm animate-in fade-in-50 duration-200">
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.25 }}
+                          className="mx-1 sm:mx-3 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border border-emerald-300 shadow-sm ring-1 ring-emerald-400/20"
+                        >
+                          {/* Panel Header */}
                           <div className="flex items-center justify-between mb-2.5">
                             <div className="flex items-center space-x-2">
-                              <span className="p-1.5 bg-emerald-600 text-white rounded-lg shadow-2xs">
+                              <span className="p-1.5 bg-emerald-600 text-white rounded-xl shadow-2xs">
                                 <Sparkles className="w-3.5 h-3.5" />
                               </span>
                               <span className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
@@ -417,11 +452,11 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                             </Badge>
                           </div>
 
-                          <p className="text-xs text-slate-600 mb-2 leading-relaxed">
-                            Review and edit the AI-generated reply below. Once approved, it will be immediately delivered to the customer.
+                          <p className="text-xs text-slate-600 mb-2.5 leading-relaxed">
+                            Review and edit the AI-generated reply below. Once approved, it will be delivered directly to the customer.
                           </p>
 
-                          {/* Editable AI Draft Textarea (Core Requirement 3) */}
+                          {/* Editable AI Response Textarea */}
                           <Textarea
                             rows={3}
                             value={draftEdits[draft.id] !== undefined ? draftEdits[draft.id] : draft.draftText}
@@ -431,19 +466,19 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                                 [draft.id]: e.target.value,
                               })
                             }
-                            className="w-full text-xs bg-white border-emerald-300 focus-visible:ring-emerald-500 shadow-2xs leading-relaxed"
-                            placeholder="Edit the suggested reply..."
+                            className="w-full text-xs sm:text-sm bg-white border-emerald-300 focus-visible:ring-emerald-500 shadow-2xs leading-relaxed rounded-xl font-normal"
+                            placeholder="Edit suggested reply..."
                           />
 
-                          {/* Action Buttons: Approve & Regenerate */}
-                          <div className="flex items-center justify-between mt-3.5 pt-2 border-t border-emerald-100">
+                          {/* Action Buttons: Regenerate & Approve & Send */}
+                          <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-emerald-200/60">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleRegenerate(msg.id, draft.id)}
                               loading={regenerating}
                               leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-                              className="text-xs bg-white text-slate-700"
+                              className="text-xs bg-white text-slate-700 hover:bg-slate-100 rounded-xl"
                             >
                               Regenerate
                             </Button>
@@ -454,17 +489,17 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                               onClick={() => handleApprove(draft.id)}
                               loading={approving}
                               leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
-                              className="text-xs font-bold px-4"
+                              className="text-xs font-bold px-4 rounded-xl shadow-xs"
                             >
                               Approve & Send
                             </Button>
                           </div>
-                        </div>
+                        </motion.div>
                       )}
 
                       {/* AI Draft Failed State (Handling 2 a.m. System Failure Scenario) */}
                       {draft && draft.status === 'FAILED' && (
-                        <Alert variant="warning" className="mx-2 sm:mx-4">
+                        <Alert variant="warning" className="mx-1 sm:mx-3 rounded-2xl">
                           <AlertTriangle className="h-4 w-4" />
                           <AlertTitle>AI Draft Generation Failed</AlertTitle>
                           <AlertDescription>
@@ -475,7 +510,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                                 variant="outline"
                                 onClick={() => handleRegenerate(msg.id, draft.id)}
                                 loading={regenerating}
-                                className="text-xs bg-white border-amber-300 text-amber-900 hover:bg-amber-100/50"
+                                className="text-xs bg-white border-amber-300 text-amber-900 hover:bg-amber-100/50 rounded-xl"
                               >
                                 Retry AI Draft
                               </Button>
@@ -507,7 +542,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                   placeholder="Type a custom message as agent..."
                   value={manualReplyText}
                   onChange={(e) => setManualReplyText(e.target.value)}
-                  className="flex-1 text-xs"
+                  className="flex-1 text-xs sm:text-sm h-10 rounded-xl"
                   disabled={sendingManual}
                 />
                 <Button
@@ -516,7 +551,7 @@ export const AgentView: React.FC<AgentViewProps> = ({ agent, onOpenLogin }) => {
                   loading={sendingManual}
                   size="default"
                   variant="secondary"
-                  className="text-xs font-semibold px-4"
+                  className="text-xs font-semibold px-4 h-10 rounded-xl"
                 >
                   <Send className="w-3.5 h-3.5 mr-1" />
                   <span>Send</span>

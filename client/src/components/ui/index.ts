@@ -9,3 +9,6 @@ export * from './alert';
 export * from './avatar';
 export * from './skeleton';
 export * from './empty-state';
+export * from './animated-tabs';
+export * from './animated-container';
+export * from './animated-badge';
