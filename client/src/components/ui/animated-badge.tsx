@@ -32,3 +32,4 @@ export const AnimatedBadge: React.FC<AnimatedBadgeProps> = ({
     </motion.div>
   );
 };
+

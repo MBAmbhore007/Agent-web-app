@@ -1,4 +1,4 @@
-# 🌿 Verdant & Co — AI Support Co-pilot
+# Verdant & Co — AI Support Co-pilot
 
 A full-stack AI customer support co-pilot built for **Verdant & Co**, a fictional online skincare brand. The system receives incoming customer messages via an authenticated webhook, uses an LLM grounded strictly in Verdant & Co's knowledge base to draft suggested replies, and provides an agent web application where human support agents review, edit, and approve replies before they are added to the conversation.
 
@@ -6,7 +6,7 @@ Built for the **Datastraw Technologies Software Engineer (AI & Product Engineeri
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Authenticated Webhook (`POST /webhook`)**:
   - Securely receives customer messages formatted per specification.
@@ -31,17 +31,38 @@ Built for the **Datastraw Technologies Software Engineer (AI & Product Engineeri
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend**: TypeScript, Node.js, Express, Prisma ORM
 - **Database**: PostgreSQL (compatible with Neon, Supabase, Railway, Docker, or local PostgreSQL)
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Watermelon UI Components, Lucide Icons
+- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, **Watermelon UI Design System (`ui.watermelon.sh`)**, Lucide Icons
 - **AI / LLM**: Groq / OpenAI / Google Gemini API + Deterministic Fallback Engine
 - **Auth**: JWT & bcryptjs password hashing
 
 ---
 
-## 📋 How to Run the Project Locally
+## Watermelon UI Modernization
+
+The user interface was modernized using the **Watermelon UI** component ecosystem (`ui.watermelon.sh`):
+
+- **Component Library (`client/src/components/ui/`)**:
+  - `Button`: Clean interactive buttons with variant states (primary, secondary, outline, ghost, destructive) and loading spinners.
+  - `Card`: Elevated containers with translucent glassmorphic surfaces, subtle borders, and header/content/footer partitions.
+  - `Badge` & `AnimatedBadge`: Status pills for conversation priority, review status, and LLM provider tags with glowing accent pulses.
+  - `AnimatedTabs`: Segmented controls with sliding backdrop indicator for seamless switching between Customer and Agent views.
+  - `Dialog`: Accessible modal overlays for Knowledge Base browsing, Agent Login, and Webhook Testing.
+  - `Input` & `Textarea`: Polished input fields with focused emerald ring accents and disabled state styling.
+  - `Avatar`: Initials and photo avatars with status indicator rings.
+  - `Skeleton`: Smooth pulsing placeholders for conversation lists and message threads during loading.
+  - `EmptyState`: Contextual empty states with icons, clean typography, and action triggers.
+- **Brand Palette**:
+  - Deep Navy background (`#020617` / `#0B132B`)
+  - Verdant Emerald accents (`#10B981` / `#059669`)
+  - Subtle borders and high-contrast readable typography conforming to WCAG AA guidelines.
+
+---
+
+## How to Run the Project Locally
 
 ### 1. Prerequisites
 
@@ -166,7 +187,7 @@ Click the **"Webhook Test"** button in the top navigation bar of the web app. It
 
 ---
 
-## 💡 Decisions Made & What Was Left Out
+## Decisions Made & What Was Left Out
 
 ### Key Technical Decisions:
 
@@ -188,7 +209,7 @@ Click the **"Webhook Test"** button in the top navigation bar of the web app. It
 
 ---
 
-## 🤖 Where AI Helped, and Where It Got Something Wrong
+## Where AI Helped, and Where It Got Something Wrong
 
 ### Where AI Helped:
 
@@ -202,7 +223,7 @@ Click the **"Webhook Test"** button in the top navigation bar of the web app. It
 
 ---
 
-## ❓ Answers to the Two Short Questions
+## Answers to the Two Short Questions
 
 ### Question 1:
 
@@ -227,8 +248,3 @@ The first change is the data architecture: introduce a first-class `Brand` entit
 Multi-tenant data isolation and security are foundational boundaries that must be enforced at the database and routing layers before adding any other feature. An agent assigned to Brand A must never see Brand B’s customer inquiries or private policies, and incoming webhooks must dynamically look up Brand B's unique HMAC secret (`brand.webhook_secret`) and Brand B's scoped knowledge base. Once brand-level data isolation is established, brand-specific prompt routing, vector embeddings, and agent RBAC cleanly build upon it without risk of cross-tenant data leaks.
 
 ---
-
-## 👤 Author & Support
-
-- Built for **Datastraw Technologies**
-- Role: **Software Engineer, AI & Product Engineering**

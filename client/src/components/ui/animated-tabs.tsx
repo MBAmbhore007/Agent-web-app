@@ -71,3 +71,4 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
     </div>
   );
 };
+

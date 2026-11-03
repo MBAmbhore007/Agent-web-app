@@ -26,3 +26,12 @@ dev.db-journal
 .DS_Store
 Thumbs.db
 
+# Video generation
+brag-output/
+.hyperframes/
+
+# Agent & Skills local metadata
+.agents/
+skills-lock.json
+
+
